@@ -10,7 +10,7 @@ logs/
 *.data
 *.csv
 *.names
-*.arff
+*[!zoo].arff
 .vscode/*
 
 # Byte-compiled / optimized / DLL files
