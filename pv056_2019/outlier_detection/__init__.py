@@ -18,6 +18,7 @@ from pv056_2019.outlier_detection.DCP import DCPMetric
 from pv056_2019.outlier_detection.DS import DSMetric
 from pv056_2019.outlier_detection.KDN import KDNMetric
 from pv056_2019.outlier_detection.CODB import CODBMetric
+from pv056_2019.outlier_detection.RFOEX import RFOEXMetric
 
 
 DETECTORS: Dict[str, Any] = {}
@@ -53,6 +54,18 @@ class LOF(AbstractDetector):
         self.values = self.clf._decision_function(bin_dataframe.values)
         return self
 
+
+@detector
+class RFOEX(AbstractDetector):
+    name = "RF-OEX"
+    data_type = "REAL"
+
+    def compute_scores(self, dataframe: pd.DataFrame, classes: np.array):
+        bin_dataframe = dataframe._binarize_categorical_values()
+
+        self.clf = RFOEXMetric()
+        self.values = self.clf.countRFOEX(bin_dataframe, classes, **self.settings)
+        return self
 
 @detector
 class NN(AbstractDetector):
