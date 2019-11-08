@@ -23,5 +23,5 @@ setup(
         ]
     },
     zip_safe=False,
-    ext_modules=cythonize("*.pyx", language_level="3"),
+    ext_modules=cythonize("pv056_2019/outlier_detection/*.pyx", language_level="3"),
 )
