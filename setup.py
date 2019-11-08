@@ -1,4 +1,6 @@
 from setuptools import find_packages, setup
+from Cython.Build import cythonize
+import sys
 
 setup(
     name="pv056_2019",
@@ -21,4 +23,5 @@ setup(
         ]
     },
     zip_safe=False,
+    ext_modules=cythonize("*.pyx", language_level="3"),
 )

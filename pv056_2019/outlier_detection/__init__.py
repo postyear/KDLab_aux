@@ -2,13 +2,12 @@ from __future__ import absolute_import
 
 import numpy as np
 import pandas as pd
+import pyximport
 from typing import Any, Dict
 from sklearn.ensemble import IsolationForest
 from pv056_2019.outlier_detection.CL import CLMetric
 from pv056_2019.outlier_detection.CLD import CLDMetric
 from sklearn.neighbors import LocalOutlierFactor, NearestNeighbors
-
-# from sklearn.neighbors import KNeighborsClassifier
 from pv056_2019.outlier_detection.F2 import F2Metric
 from pv056_2019.outlier_detection.T1 import T1Metric
 from pv056_2019.outlier_detection.MV import MVMetric
@@ -20,6 +19,7 @@ from pv056_2019.outlier_detection.KDN import KDNMetric
 from pv056_2019.outlier_detection.CODB import CODBMetric
 from pv056_2019.outlier_detection.RFOEX import RFOEXMetric
 
+pyximport.install()
 
 DETECTORS: Dict[str, Any] = {}
 
@@ -64,8 +64,9 @@ class RFOEX(AbstractDetector):
         bin_dataframe = dataframe._binarize_categorical_values()
 
         self.clf = RFOEXMetric()
-        self.values = self.clf.countRFOEX(bin_dataframe, classes, **self.settings)
+        self.values = self.clf.countRFOEX(bin_dataframe, classes, self)
         return self
+
 
 @detector
 class NN(AbstractDetector):
@@ -235,7 +236,7 @@ class F3(AbstractDetector):
                 bin_dataframe[
                     (bin_dataframe[col] <= overlap_max)
                     & (bin_dataframe[col] >= overlap_min)
-                ]
+                    ]
             )
             ratio = (num_rows - num_overlaps) / num_rows
             max_ratios_arr.append(ratio)
@@ -250,7 +251,6 @@ class CL(AbstractDetector):
     data_type = "REAL"
 
     def compute_scores(self, dataframe: pd.DataFrame, classes: np.array):
-
         bin_dataframe = dataframe._binarize_categorical_values()
 
         self.clf = CLMetric(self.settings)
@@ -264,7 +264,6 @@ class CLD(AbstractDetector):
     data_type = "REAL"
 
     def compute_scores(self, dataframe: pd.DataFrame, classes: np.array):
-
         bin_dataframe = dataframe._binarize_categorical_values()
 
         self.clf = CLDMetric(self.settings)
@@ -319,7 +318,7 @@ class F4(AbstractDetector):
             bin_dataframe = bin_dataframe.loc[
                 (bin_dataframe[feature] >= overlap_min)
                 & (bin_dataframe[feature] <= overlap_max)
-            ]
+                ]
             bin_dataframe.drop(columns=[feature], inplace=True)
 
         rows_left = bin_dataframe.shape[0]
@@ -341,7 +340,7 @@ class F4(AbstractDetector):
                 bin_dataframe[
                     (bin_dataframe[col] <= overlap_max)
                     & (bin_dataframe[col] >= overlap_min)
-                ]
+                    ]
             )
             ratio = (num_rows - num_overlaps) / num_rows
             if ratio > max_ratio:
@@ -400,7 +399,6 @@ class MV(AbstractDetector):
     data_type = "REAL"
 
     def compute_scores(self, dataframe: pd.DataFrame, classes: np.array):
-
         self.clf = MVMetric()
         self.values = self.clf.compute_values(classes=classes)
         return self
@@ -412,7 +410,6 @@ class CB(AbstractDetector):
     data_type = "REAL"
 
     def compute_scores(self, dataframe: pd.DataFrame, classes: np.array):
-
         self.clf = CBMetric()
         self.values = self.clf.compute_values(classes=classes)
         return self
@@ -424,7 +421,6 @@ class CODB(AbstractDetector):
     data_type = "REAL"
 
     def compute_scores(self, dataframe: pd.DataFrame, classes: np.array):
-
         self.clf = CODBMetric(self.settings)
         self.values = self.clf.compute_values(df=dataframe, classes=classes)
         return self
