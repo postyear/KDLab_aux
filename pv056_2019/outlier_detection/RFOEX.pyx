@@ -9,14 +9,11 @@ class RFOEXMetric:
 
     def countRFOEX(self, df, classes, super):
 
-        start = time.time()
-
         inst = len(df)
         values = np.empty(inst)
 
         estimator = RandomForestClassifier(**super.settings)
         estimator.fit(df.values, classes)
-        print('fit complete')
 
         cdef int i, j
 
@@ -30,7 +27,6 @@ class RFOEXMetric:
             for j in range(inst):
                 #aux = trees[i].predict(df)
                 predicted[i][j] = pred[j]
-        print('Trees predicted')
 
         for i in range(inst):
             for j in range(i, inst):
@@ -40,9 +36,6 @@ class RFOEXMetric:
                         sim += 1
                 matrix[i, j] = sim
                 matrix[j, i] = sim
-            if i % 100 == 0:
-                print('Intance %d done' % i)
-        print('Matrix produced')
 
         _, cls_num = np.unique(classes, return_inverse=True)
         cdef int[:] clss = cls_num.astype(int)
@@ -64,8 +57,6 @@ class RFOEXMetric:
         for cls in np.unique(clss):
             cls_indices[cls] = [i for i in range(len(df)) if clss[i] == cls]
             noncls_indices[cls] = [i for i in range(len(df)) if clss[i] != cls]\
-
-        print('indices split')
 
         cdef double[:] proxsuminv = np.empty(inst)
         cdef double[:] wrong_cl = np.empty(inst)
@@ -101,9 +92,6 @@ class RFOEXMetric:
             general_out[i] = (num_inst - sum(row[j] for j in top_c)) / num_inst
             #print('Base calculated for instance %d' % i)
 
-            if i % 100 == 0:
-                print('Intance %d done' % i)
-
             """
             if i == 0:
                 print('1 to 2', point2 - point1)
@@ -125,9 +113,5 @@ class RFOEXMetric:
         fo3 = general_out * const
 
         values = np.add(np.add(fo1, fo2), fo3)
-
-        end = time.time()
-        print('Total time:')
-        print(end - start)
 
         return values
